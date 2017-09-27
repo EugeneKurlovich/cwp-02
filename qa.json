@@ -1,0 +1,19 @@
+[
+  {
+    "question":"BSTU is university?",
+    "true":"Yes",
+    "false":"No"
+  },
+
+  {
+    "question":"2+2*2",
+    "true":6,
+    "false":8
+  },
+
+  {
+    "question":"2+2",
+    "true":4,
+    "false":100
+  }
+]
