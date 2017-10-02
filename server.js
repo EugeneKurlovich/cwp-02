@@ -5,7 +5,7 @@ const serverOK = 'ACK';
 const serverNO = 'DEC';
 const startConnect = 'QA';
 const qaPath = "D://qa.json";
-const clientLogPathDefault = './logs'
+const logFile = "E://PSCP//lr3//logs";
 let questions = [];
 let seed = 0;
 let fdFile;
@@ -25,9 +25,15 @@ client.on('data',AskQuestions);
          {
             if (data === startConnect) 
             {
-                client.id = getUniqId();
-                client.write(serverOK);
+                    client.id = getUniqId();
+                fs.open(`${logFile}//client_${client.id}.txt`, 'w', function (err, fd) {
+                    fdFile = fd;
+                    clientLogWrite("Client id: " + client.id + " connected");
+                    clientLogWrite(" Start logging");                  
                 console.log(client.id + "  connected");
+                    client.write(serverOK);
+                });
+
             }
         }
          else 
@@ -48,15 +54,15 @@ client.on('data',AskQuestions);
                 let questionObj = getQuestionObj(data);
                 let serverAnswer = questionObj[(Math.random() < 0.5) ? "true" : "false"].toString();
 
-               // clientLogWrite('Q: ' + questionObj.question);
-               // clientLogWrite('A: ' + serverAnswer);
+                clientLogWrite('Q: ' + questionObj.question);
+                clientLogWrite('A: ' + serverAnswer);
 
                 client.write(serverAnswer);
             }
         }
         else
          {
-           // clientLogWrite(err);
+            clientLogWrite(err);
         }
     }
 
@@ -79,7 +85,13 @@ function getUniqId()
   });
 
 
-
+function clientLogWrite(data) {
+    fs.write(fdFile, data + '\r\n', function (err) {
+        if (err) {
+            console.log(err);
+        }
+    });
+}
  
 
 
