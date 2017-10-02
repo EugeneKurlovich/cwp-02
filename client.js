@@ -3,56 +3,59 @@ const port = 8124;
 const startConnect = 'QA';
 const serverOK = 'ACK';
 let questions = [];
+const serverNO = 'DEC';
 let currentQuestionIndex = 0;
 const qaPath = "D://qa.json";
 const client = new net.Socket();
 const fs = require('fs');
-
+let ind = 0;
 client.setEncoding('utf8');
 
 
 client.connect(port, function() {
-  console.log('Connected');
-  client.write(startConnect);
 
+    fs.readFile(qaPath, function (err, data) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            questions = JSON.parse(data);
+            mixQuestion();
+           console.log('Connected');
+  client.write(startConnect);
+        }
+    });
 });
 
 
 
 client.on('data', function(data) {
-  console.log(data);
+    if (data === serverOK) 
+    {
+        client.write(questions[ind].question);
 
-if (data === serverOK)
-{
-   fs.readFile(qaPath, function (err, data) {
-        if (err) 
-        {
-            console.log(err);
-        }
-        else 
-        {
-           questions = JSON.parse(data);
-            mixQuestion();
-            client.write(serverOK);
-            
-         for (let i = 0 ; i < questions.length; i ++)
-              {
-                console.log(questions[i].question);
-                console.log(questions[i].true);
-                console.log(questions[i].false);
-              }
-      
-        }
-    });
-}
+    }
+    else if (data === serverNO) 
+    {
+        console.log(data);
+        client.destroy();
 
-else
-{
-  client.destroy();
-}
+    }
+    else if (data !== serverOK) {
+        console.log("\nQuestion: " + questions[ind].question);
+        console.log("Server answer: " + data);
+        console.log(data === questions[ind].true.toString() ?
+            "Server answer is true" :
+            "True answer: " + questions[ind].true);
+        if (++ind !== questions.length) {
+            client.write(questions[ind].question)
+        }
+        else {
+            client.destroy();
+        }
+    }
+
 });
-
-
 
 client.on('close', function() {
   console.log('Connection closed');
