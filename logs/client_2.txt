@@ -1,0 +1,8 @@
+Client id: 2connected
+ Start logging
+Q: 2+2
+A: 4
+Q: 2+2*2
+A: 6
+Q: BSTU is university?
+A: Yes
